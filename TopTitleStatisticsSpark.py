@@ -11,7 +11,7 @@ def cleanLine(line):
     return int(line[1])
 
 lines = sc.textFile(sys.argv[1], 1)
-num = lines.flatMap(cleanLine)
+num = lines.map(cleanLine)
 
 sum = num.reduce(lambda a, b: a + b)
 length = num.count()
@@ -27,8 +27,7 @@ outputFile.write('Mean\t%s\n' % ans1)
 outputFile.write('Sum\t%s\n' % ans2)
 outputFile.write('Min\t%s\n' % ans3)
 outputFile.write('Max\t%s\n' % ans4)
-outputFile.write('Var\t%s\n' % ans5)
+outputFile.write('Var\t%s\n' % int(ans5))
 outputFile.close()
 
 sc.stop()
-

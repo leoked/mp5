@@ -11,17 +11,17 @@ sc = SparkContext(conf=conf)
 lines = sc.textFile(sys.argv[1], 10) 
 leagueIds = sc.textFile(sys.argv[2], 1)
 leagueIds = leagueIds.collect()
+lid = sc.broadcast(leagueIds)
 
 def cleanLine(line):
     line = line.strip().split(':')
-    if line[0] not in leagueIds:
-        return
     linked = line[1].strip().split(" ")
-    return (line[0],linked)
+    return linked
 
-lines = lines.map(cleanLine)
-lines = lines.map(lambda l:(l[0],len(l[1])))
-league = lines.sortBy(lambda x: x[1],ascending=True).collect()
+links = lines.flatMap(cleanLine)
+links = links.map(lambda l: (l, 1)).reduceByKey(lambda a, b: a + b)
+league = links.filter(lambda x:x[0] in lid.value)
+
 rank = [0] * len(league)
 
 for i in range(len(league)):

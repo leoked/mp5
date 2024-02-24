@@ -7,7 +7,7 @@ conf.set("spark.driver.bindAddress", "127.0.0.1")
 sc = SparkContext(conf=conf)
 
 def cleanLine(line):
-    line = line.strip().split('\t')
+    line = line.strip().split(':')
     return int(line[1])
 
 lines = sc.textFile(sys.argv[1], 1)

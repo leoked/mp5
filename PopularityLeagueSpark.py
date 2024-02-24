@@ -8,7 +8,7 @@ conf = SparkConf().setMaster("local").setAppName("PopularityLeague")
 conf.set("spark.driver.bindAddress", "127.0.0.1")
 sc = SparkContext(conf=conf)
 
-lines = sc.textFile(sys.argv[1], 10) 
+lines = sc.textFile(sys.argv[1], 10)
 leagueIds = sc.textFile(sys.argv[2], 1)
 leagueIds = leagueIds.collect()
 lid = sc.broadcast(leagueIds)
@@ -20,8 +20,8 @@ def cleanLine(line):
 
 links = lines.flatMap(cleanLine)
 links = links.map(lambda l: (l, 1)).reduceByKey(lambda a, b: a + b)
-league = links.filter(lambda x:x[0] in lid.value)
-
+league = links.filter(lambda x:x[0] in lid.value).collect()
+league = list(league)
 rank = [0] * len(league)
 
 for i in range(len(league)):
@@ -32,13 +32,12 @@ for i in range(len(league)):
     rank[i] = count
 
 for i in range(len(league)):
-    league[i][1] = rank[i]
+    rank[i] = [league[i][0],rank[i]]
 
-league = sorted(league, key=lambda x:x[0])
+rank = sorted(rank, key=lambda x:x[0])
 
 output = open(sys.argv[3], "w")
-for i in league:
+for i in rank:
     output.write('%s\t%s\n' % ( i[0] , i[1] ))
 output.close()
 sc.stop()
-
